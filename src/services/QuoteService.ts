@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import Quote from "./Quote";
 
 // This prevents potential collision of id's, and because we're never sending these ID's to the services, it should be fine
@@ -9,28 +9,54 @@ function createIdGenerator() {
     return id;
   };
 }
+const _idGen = createIdGenerator();
 
 type QuoteGenerator = {
   url: string,
-  generate: (jsonStr: string) => Quote
+  generate: (resp: AxiosResponse) => Quote
 };
 
+type QuoteGardenResponse = {
+  statusCode: number,
+  data: Array<{ quoteText: string, quoteAuthor: string }>
+};
+type QuotableResponse = {
+  content: string,
+  author: string
+};
+type BreakingBadQuoteResponse = {
+  quote: string,
+  author: string
+}
+
+
 export default class QuoteService {
-  private _genId = createIdGenerator();
   private _responseGenerators: Array<QuoteGenerator> = [
     {
       url: 'https://quote-garden.herokuapp.com/api/v3/quotes/random',
-      generate: this._quoteGardenResponse
+      generate: this._parseQuoteGardenResponse
     },
     {
       url: 'https://api.quotable.io/random',
-      generate: this._quotableResponse
+      generate: this._parseQuotableResponse
     },
     {
       url: 'https://breaking-bad-quotes.herokuapp.com/v1/quotes',
-      generate: this._breakingBadQuoteResponse
+      generate: this._parseBreakingBadQuoteResponse
     },
   ];
+
+  constructor() {
+    // this.getRandomQuote = this.getRandomQuote.bind(this);
+    // this.getQuoteGardenQuote = this.getQuoteGardenQuote.bind(this);
+    // this.getQuotableQuote = this.getQuotableQuote.bind(this);
+    // this.getBreakingBadQuote = this.getBreakingBadQuote.bind(this);
+    // this.getQuote = this.getQuote.bind(this);
+
+    // this._parseQuoteGardenResponse = this._parseQuoteGardenResponse.bind(this);
+    // this._parseQuotableResponse = this._parseQuotableResponse.bind(this);
+    // this._parseBreakingBadQuoteResponse = this._parseBreakingBadQuoteResponse.bind(this);
+  }
 
   public getRandomQuote(): Promise<Quote> {
     const index = Math.floor(Math.random() * this._responseGenerators.length);
@@ -48,38 +74,40 @@ export default class QuoteService {
   }
 
   private async getQuote(generator: QuoteGenerator): Promise<Quote> {
-    const resp = await axios.get<string>(generator.url);
-    return generator.generate(resp.data);
+    const resp = await axios.get(generator.url);
+    return generator.generate(resp);
   }
 
-  private _quoteGardenResponse(jsonStr: string): Quote {
-    const json = JSON.parse(jsonStr);
-    if (json['statusCode'] != 200) {
+  private _parseQuoteGardenResponse(axiosresp: AxiosResponse): Quote {
+    const resp: QuoteGardenResponse = axiosresp.data;
+    if (resp.statusCode != 200) {
       // Exception
     }
-    var data = json['data'][0];
+    var data = resp.data[0];
     return new Quote(
-      this._genId(),
-      data['quoteText'],
-      data['quoteAuthor']
+      _idGen(),
+      data.quoteText,
+      data.quoteAuthor
     );
   }
 
-  private _quotableResponse(jsonStr: string): Quote {
-    const json = JSON.parse(jsonStr);
+  private _parseQuotableResponse(axiosresp: AxiosResponse): Quote {
+    const resp: QuotableResponse = axiosresp.data;
     return new Quote(
-      this._genId(),
-      json['content'],
-      json['author']
+      _idGen(),
+      resp.content,
+      resp.author
     );
   }
 
-  private _breakingBadQuoteResponse(jsonStr: string): Quote {
-    const json = JSON.parse(jsonStr);
+  private _parseBreakingBadQuoteResponse(axiosresp: AxiosResponse): Quote {
+    const resps: Array<BreakingBadQuoteResponse> = axiosresp.data;
+    const resp = resps[0];
+    console.log(axiosresp.data);
     return new Quote(
-      this._genId(),
-      json['quote'],
-      json['author']
+      _idGen(),
+      resp.quote,
+      resp.author
     );
   }
 }

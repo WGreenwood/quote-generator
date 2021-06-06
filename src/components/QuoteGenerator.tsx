@@ -3,7 +3,6 @@ import React from 'react';
 import QuoteService from '../services/QuoteService';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
-import Divider from '@material-ui/core/Divider';
 
 type Props = {
 
@@ -11,7 +10,6 @@ type Props = {
 
 const Container = styled.div`
 margin: 20px 0px;
-width: 100%;
 display: flex;
 justify-content: center;
 align-items: center;
@@ -20,41 +18,42 @@ flex-direction: column;
 
 const ButtonsContainer = styled.div`
 padding: 12px 42px;
-display: flex;
-justify-content: center;
 `;
 
 const _quoteService = new QuoteService();
 
 export default function QuoteGenerator({ }: Props) {
   const onGetRandomQuote = async () => {
+    console.log(await _quoteService.getRandomQuote());
   };
   const onGetQuoteGardenQuote = async () => {
+    console.log(await _quoteService.getQuoteGardenQuote());
   };
   const onGetQuotableQuote = async () => {
+    console.log(await _quoteService.getQuotableQuote());
   };
   const onGetBreakingBadQuote = async () => {
+    console.log(await _quoteService.getBreakingBadQuote());
   };
 
   return (
     <Container>
       <Paper elevation={3}>
         <ButtonsContainer>
-          <Button onClick={onGetRandomQuote}>
+          <Button variant="outlined" color="primary" onClick={onGetRandomQuote}>
             Random
           </Button>
-          <Button onClick={onGetQuoteGardenQuote}>
+          <Button variant="outlined" onClick={onGetQuoteGardenQuote}>
             Quote Garden
           </Button>
-          <Button onClick={onGetQuotableQuote}>
+          <Button variant="outlined" onClick={onGetQuotableQuote}>
             Quotable
           </Button>
-          <Button onClick={onGetBreakingBadQuote}>
+          <Button variant="outlined" onClick={onGetBreakingBadQuote}>
             Breaking Bad
           </Button>
         </ButtonsContainer>
       </Paper>
-      <Divider />
     </Container>
   );
 }
