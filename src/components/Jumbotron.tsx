@@ -1,7 +1,7 @@
-import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 import React from 'react';
+import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
 
 const JumbotronDiv = styled.div`
 background: #D8D8D8;
