@@ -1,4 +1,3 @@
-// https://quote-garden.herokuapp.com/api/v3/quotes/random
 
 export default class Quote {
   public id: number;
