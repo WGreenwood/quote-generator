@@ -1,9 +1,9 @@
 import React from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Header from './Header';
-import Jumbotron from './Jumbotron';
-import QuoteGenerator from './QuoteGenerator';
-import PreviousQuotes from './PreviousQuotes';
+import Header from './components/Header';
+import Jumbotron from './components/Jumbotron';
+import QuoteGenerator from './components/QuoteGenerator';
+import PreviousQuotes from './components/PreviousQuotes';
 
 export default function App() {
   var [previousQuotes, setPreviousQuotes] = React.useState([]);
