@@ -5,12 +5,11 @@ import Typography from '@material-ui/core/Typography';
 import FormatQuote from '@material-ui/icons/FormatQuote';
 import React from 'react';
 
-
 type Props = {
   title: string
 }
 
-function Header({ title }: Props) {
+export default function Header({ title }: Props) {
   return (
     <AppBar position="static">
       <Toolbar>
@@ -22,5 +21,3 @@ function Header({ title }: Props) {
     </AppBar >
   );
 }
-
-export default Header;

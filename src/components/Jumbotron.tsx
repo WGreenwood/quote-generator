@@ -8,7 +8,7 @@ background: #D8D8D8;
 padding: 64px 0px 48px;
 `;
 
-function Jumbotron() {
+export default function Jumbotron() {
   return (
     <JumbotronDiv>
       <Container maxWidth="sm">
@@ -22,5 +22,3 @@ function Jumbotron() {
     </JumbotronDiv>
   );
 }
-
-export default Jumbotron;
