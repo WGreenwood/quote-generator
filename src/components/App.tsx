@@ -1,14 +1,13 @@
 import React from 'react';
-import Footer from './Footer';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Header from './Header';
 
 function App() {
   return (
-    <div>
-      <Header />
-      <h1>Hello world</h1>
-      <Footer />
-    </div>
+    <React.Fragment>
+      <CssBaseline />
+      <Header title="Quote Generator" />
+    </React.Fragment>
   );
 }
 
