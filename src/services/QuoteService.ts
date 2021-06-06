@@ -1,6 +1,5 @@
 import axios from "axios";
 import Quote from "./Quote";
-import { QuoteGardenResponse } from "./QuoteGardenResponse";
 
 // This prevents potential collision of id's, and because we're never sending these ID's to the services, it should be fine
 function createIdGenerator() {
@@ -11,39 +10,76 @@ function createIdGenerator() {
   };
 }
 
-type QuoteGenResult = { success: boolean, quote: Quote };
-type QuoteGenerator = () => Promise<QuoteGenResult>;
+type QuoteGenerator = {
+  url: string,
+  generate: (jsonStr: string) => Quote
+};
 
 export default class QuoteService {
   private _genId = createIdGenerator();
-  private _quoteGenerators: Array<QuoteGenerator> = [
-    this._getRandomQuote1,
-    this._getRandomQuote2,
+  private _responseGenerators: Array<QuoteGenerator> = [
+    {
+      url: 'https://quote-garden.herokuapp.com/api/v3/quotes/random',
+      generate: this._quoteGardenResponse
+    },
+    {
+      url: 'https://api.quotable.io/random',
+      generate: this._quotableResponse
+    },
+    {
+      url: 'https://breaking-bad-quotes.herokuapp.com/v1/quotes',
+      generate: this._breakingBadQuoteResponse
+    },
   ];
 
-  public async getRandomQuote(): Promise<QuoteGenResult> {
-    return await this._getRandomGenerator()();
+  public getRandomQuote(): Promise<Quote> {
+    const index = Math.floor(Math.random() * this._responseGenerators.length);
+    return this.getQuote(this._responseGenerators[index]);
   }
 
-  private _getRandomGenerator(): QuoteGenerator {
-    const count = this._quoteGenerators.length;
-    const index = Math.floor(Math.random() * count);
-    return this._quoteGenerators[index];
+  public getQuoteGardenQuote(): Promise<Quote> {
+    return this.getQuote(this._responseGenerators[0]);
+  }
+  public getQuotableQuote(): Promise<Quote> {
+    return this.getQuote(this._responseGenerators[1]);
+  }
+  public getBreakingBadQuote(): Promise<Quote> {
+    return this.getQuote(this._responseGenerators[2]);
   }
 
-  private async _getRandomQuote1(): Promise<QuoteGenResult> {
-    const axiosresp = await axios.get<string>('https://quote-garden.herokuapp.com/api/v3/quotes/random');
-    const resp = new QuoteGardenResponse(axiosresp, this._genId());
-    return {
-      success: resp.success,
-      quote: resp.quote
-    };
+  private async getQuote(generator: QuoteGenerator): Promise<Quote> {
+    const resp = await axios.get<string>(generator.url);
+    return generator.generate(resp.data);
   }
 
-  private async _getRandomQuote2(): Promise<QuoteGenResult> {
-    return {
-      success: true,
-      quote: new Quote(this._genId(), "", "")
-    };
+  private _quoteGardenResponse(jsonStr: string): Quote {
+    const json = JSON.parse(jsonStr);
+    if (json['statusCode'] != 200) {
+      // Exception
+    }
+    var data = json['data'][0];
+    return new Quote(
+      this._genId(),
+      data['quoteText'],
+      data['quoteAuthor']
+    );
   }
-};
+
+  private _quotableResponse(jsonStr: string): Quote {
+    const json = JSON.parse(jsonStr);
+    return new Quote(
+      this._genId(),
+      json['content'],
+      json['author']
+    );
+  }
+
+  private _breakingBadQuoteResponse(jsonStr: string): Quote {
+    const json = JSON.parse(jsonStr);
+    return new Quote(
+      this._genId(),
+      json['quote'],
+      json['author']
+    );
+  }
+}
