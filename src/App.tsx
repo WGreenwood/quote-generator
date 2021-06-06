@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Jumbotron from './components/Jumbotron';
 import QuoteGenerator from './components/QuoteGenerator';
 import PreviousQuotes from './components/PreviousQuotes';
+import Quote from './services/Quote';
 
 const ContentContainer = styled.div`
 width: 100%;
@@ -15,7 +16,16 @@ align-items: stretch;
 `;
 
 export default function App() {
-  var [previousQuotes, setPreviousQuotes] = React.useState([]);
+  var [previousQuotes, setPreviousQuotes] = React.useState<Array<Quote>>([]);
+
+  const addQuote = (quote: Quote) => {
+    setPreviousQuotes(quotes => {
+      return [
+        quote,
+        ...quotes
+      ];
+    });
+  };
 
   return (
     <React.Fragment>
@@ -23,8 +33,8 @@ export default function App() {
       <Header title="Quote Generator" />
       <Jumbotron />
       <ContentContainer>
-        <QuoteGenerator />
-        <PreviousQuotes />
+        <QuoteGenerator addQuote={addQuote} />
+        <PreviousQuotes quotes={previousQuotes} />
       </ContentContainer>
     </React.Fragment>
   );

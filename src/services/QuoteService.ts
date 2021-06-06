@@ -103,7 +103,6 @@ export default class QuoteService {
   private _parseBreakingBadQuoteResponse(axiosresp: AxiosResponse): Quote {
     const resps: Array<BreakingBadQuoteResponse> = axiosresp.data;
     const resp = resps[0];
-    console.log(axiosresp.data);
     return new Quote(
       _idGen(),
       resp.quote,
